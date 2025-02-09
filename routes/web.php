@@ -8,7 +8,7 @@ use App\Http\Controllers\About\AboutController;
 use App\Http\Controllers\CustomAuth\AuthenticatedSessionController;
 use App\Http\Controllers\Home\HomeController;
 use App\Http\Controllers\MasterData\MasterController;
-use App\Http\Controllers\InputData\InputDataController;
+use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\FormPurchase\FormPurchaseController;
 
 
@@ -69,7 +69,7 @@ Route::get('/dashboard', function () {
 
 route::get('/home', [HomeController::class, 'index'])->middleware(['auth', 'verified'])->name('home');
 route::get('/master-data', [MasterController::class, 'index'])->middleware(['auth', 'verified'])->name('master-data');
-route::get('/input-data', [InputDataController::class, 'index'])->middleware(['auth', 'verified'])->name('input-data');
+route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 route::get('/form-purchase', [FormPurchaseController::class, 'index'])->middleware(['auth', 'verified'])->name('form-purchase');
 
 

@@ -17,6 +17,9 @@
               <div class="text-center">
                 <h1 class="h4 text-gray-900 mb-4">Welcome Back!</h1>
               </div>
+              <div class="text-center">
+                <img style="width: 50%; height: 50%; object-fit: contain" src="{{asset('img/logo.jpeg')}}" alt="">
+              </div>
               <form method="POST" action="{{ route('login') }}">
                 @csrf
                 <div class="form-group">

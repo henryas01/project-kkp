@@ -99,6 +99,15 @@
   </li> --}}
 
   <!-- Nav Item - Tables -->
+
+  @if ($user->role == 'admin' || $user->role == 'atasan')
+  <li class="nav-item">
+    <a class="nav-link" href="/dashboard">
+      <i class="fas fa-fw fa-table"></i>
+      <span>Dashboard</span></a>
+  </li>
+  @endif
+
   <li class="nav-item">
     <a class="nav-link" href="/master-data">
       <i class="fas fa-fw fa-table"></i>
@@ -109,19 +118,22 @@
   <li class="nav-item">
     <a class="nav-link" href="/form-purchase">
       <i class="fas fa-fw fa-table"></i>
-      <span>form purchase</span></a>
+      <span>Purchase Request</span></a>
   </li>
   @endif
 
 
 
-  @if ($user->role == 'admin' || $user->role == 'atasan')
+  {{-- @if ($user->role == 'admin' || $user->role == 'atasan')
   <li class="nav-item">
     <a class="nav-link" href="/input-data">
       <i class="fas fa-fw fa-table"></i>
       <span>Input Data</span></a>
   </li>
-  @endif
+  @endif --}}
+
+
+
 
 
   <!-- Divider -->
