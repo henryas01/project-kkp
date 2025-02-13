@@ -114,13 +114,13 @@
       <span>Master Data</span></a>
   </li>
 
-  @if ($user->role == 'admin' || $user->role == 'atasan')
+
+
   <li class="nav-item">
-    <a class="nav-link" href="/form-purchase">
+    <a class="nav-link" href="/purchase-request/{{ urldecode('PRRM 0001') }}">
       <i class="fas fa-fw fa-table"></i>
       <span>Purchase Request</span></a>
   </li>
-  @endif
 
 
 

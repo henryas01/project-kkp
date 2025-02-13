@@ -20,6 +20,7 @@
 
     <!-- Styles -->
     <link href="{{asset('tamplate/css/sb-admin-2.min.css')}}" rel="stylesheet">
+
     @yield('css')
 
 
@@ -36,8 +37,19 @@
             <!-- Main Content -->
             <div id="content">
                 @include("layouts.components.navbar")
+
+
+
+
+
+
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
+
+                    {{-- Alert --}}
+                    @include("layouts.alert")
+
+                    {{-- Content --}}
                     @if (!View::hasSection('content'))
                     @include("layouts.components.content-ex")
                     @else
@@ -85,6 +97,7 @@
 
     <!-- Bootstrap core JavaScript-->
     <script src="{{asset('tamplate/vendor/jquery/jquery.min.js') }}"></script>
+    <script src="{{asset('js/jquery-3.4.1.min.js') }}"></script>
     <script src="{{asset('tamplate/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 
     <!-- Core plugin JavaScript-->
