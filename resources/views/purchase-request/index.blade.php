@@ -21,7 +21,7 @@
       <span class="text-gray-800">{{ \Carbon\Carbon::parse($head->document_date)->format('l, j F
         Y') }}</span>
     </div>
-    <div style="width: 40%">
+    <div style="width: 50%" class="d-flex flex-row bd-highlight justify-content-between">
 
       <table style="margin-top: 10px;border: none;" class=" table-sm " cellspacing="0" cellpadding="0">
         <tbody>
@@ -49,6 +49,34 @@
           </tr>
         </tbody>
       </table>
+
+      {{-- <div style="cursor: pointer;margin-top: 25px;" class="d-flex flex-column" class="btn btn-primary"
+        onclick="window.location.href = '/purchase-request/create-new'">
+        <h6 class="m-0 font-weight-bold text-primary">
+          <i class="fas fa-plus"></i>
+          Create New PR
+        </h6>
+      </div> --}}
+
+      {{-- method="POST"
+      action="{{ route('purchase-request.store', urldecode(request('purchase_request_number', 'PRRM 0001'))) }}" --}}
+
+      {{-- method="POST" action="{{ route('purchase-request.createPR') }}" --}}
+      <form method="POST"
+        action="{{ route('purchase-request.store', urldecode(request('purchase_request_number', 'PRRM 0001'))) }}">
+        @csrf
+        <div style="cursor: pointer; margin-top: 20px;" class="d-flex flex-column">
+
+          <button type="submit" style="border: none; background: none;" class=" m-0 font-weight-bold text-primary">
+            <i class="fas fa-plus"></i>
+            Create New PR
+          </button>
+        </div>
+      </form>
+
+
+
+
     </div>
     <div class="d-flex flex-row bd-highlight justify-content-between">
       <div style="cursor: pointer" class="d-flex flex-column align-items-center justify-content-center"
@@ -59,6 +87,7 @@
           <i class="fas fa-plus"></i>
           Insert Data
         </h6>
+
         @endif
         {{-- <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal"
           data-whatever="@getbootstrap">Open modal for @getbootstrap</button> --}}
@@ -116,8 +145,20 @@
             <td>{{ $item->material }}</td>
             <td>{{ $item->kategory }}</td>
             <td>{{ $item->description }}</td>
+
             <td>{{ $item->qty }}</td>
-            <td>{{ $item->uom }}</td>
+
+            {{-- <td>{{ $item->uom }}</td> --}}
+            {{-- convertion --}}
+            <td>
+              <form method="post" action="{{ route('purchase-request.updateUom', $item->id) }}">
+                @csrf
+                <select class="form-control" name="uom" onchange="this.form.submit()">
+                  <option value="kg" {{ $item->uom == 'kg' ? 'selected' : '' }}>Kg</option>
+                  <option value="meter" {{ $item->uom == 'meter' ? 'selected' : '' }}>Meter</option>
+                </select>
+              </form>
+            </td>
 
             @if ($user->role == 'admin' || $user->role == 'atasan')
             <td class="action" style="width: auto; display: flex; align-items: center;gap: 5px;">

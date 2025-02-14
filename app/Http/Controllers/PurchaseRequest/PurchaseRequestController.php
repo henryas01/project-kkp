@@ -10,6 +10,7 @@ use App\Models\MasterData;
 use App\Models\PurchaseRequestHead;
 use App\Models\PurchaseRequestList;
 use App\Models\PurchaseRequestSignature;
+use App\Helpers\ConvertMassVolume;
 
 class PurchaseRequestController extends Controller
 {
@@ -52,6 +53,34 @@ class PurchaseRequestController extends Controller
     // }
   }
 
+  public function createPR(User $user,  PurchaseRequestHead $purchaseRequestHead, PurchaseRequestSignature $purchaseRequestSignature)
+  {
+    $user = Auth::user();
+    $purchaseRequestHeadID = PurchaseRequestHead::latest()->first()->id;
+    $nextNumber = $purchaseRequestHeadID + 1;
+    $NewPurchaseRequestNumber = 'PRRM ' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+
+    $dataPayloadHead = [];
+    $dataPayloadHead["purchase_request_number"] = $NewPurchaseRequestNumber;
+    $dataPayloadHead["user_ID"] = $user->id;
+    $dataPayloadHead["document_date"] = date('Y-m-d H:i:s');
+    $dataPayloadHead["status"] = 0;
+
+    $dataPayloadSignature = [];
+    $dataPayloadSignature["purchase_request_number"] = $NewPurchaseRequestNumber;
+    $dataPayloadSignature["approved_user"] = $user->name;
+    // $dataPayloadSignature["approved_user"] = $user->name;
+
+
+    dd($dataPayloadHead, $dataPayloadSignature);
+    // if ($purchaseRequestHead->create($dataPayloadHead) && $purchaseRequestSignature->create($dataPayloadSignature)) {
+    //   Session()->flash("Success", "Data have been created");
+    // } else {
+    //   Session()->flash("Error", "Data failed to create");
+    // }
+  }
+
+  // this function for insert data PR PurchaseRequest list
   public function store(Request $request,  MasterData $masterData, PurchaseRequestList $purchaseRequestList,)
   {
 
@@ -91,8 +120,6 @@ class PurchaseRequestController extends Controller
     $data['kategory'] = $masterData->kategory;
     $data['qty'] = $request->qty;
     $data['uom'] = $request->uom;
-    dd($data);
-
 
     $purchaseRequestNumber = request('purchase_request_number') ? request('purchase_request_number') : "PRRM 0001";
     if ($list->update($data)) {
@@ -131,6 +158,65 @@ class PurchaseRequestController extends Controller
       Session()->flash("Success", "Signature have been updated");
     } else {
       Session()->flash("Error", "Signature failed to update");
+    }
+    return redirect()->route('purchase-request.index', $purchaseRequestNumber);
+  }
+
+
+  public function convertion(Request $request, PurchaseRequestHead $purchaseRequestHead, PurchaseRequestList $purchaseRequestList, PurchaseRequestSignature $purchaseRequestSignature)
+  {
+
+    // // $mass = $request->mass ?? 1; // 1 kg by default
+    // // $mass = 15; // 1 kg by default
+    // $mass = 117750.0;
+    // $density = 'steel';
+
+    // $volume = (new ConvertMassVolume)->kgToM3($mass, $density);
+    // // $volume = (new ConvertMassVolume)->m3ToKg($mass, $density);
+
+    // // echo "Volume: " . $volume . " m³";
+    // dd($volume);
+
+
+    // $head = new PurchaseRequestHead;
+    // $head->purchase_request_number = $request->input('purchase_request_number', 'PRRM 0001');
+    // $head->user_id = $user->id;
+    // $user = Auth::user();
+    // $purchaseRequestHeadID = PurchaseRequestHead::latest()->first()->id;
+    // $nextNumber = $purchaseRequestHeadID + 1;
+    // $NewPurchaseRequestNumber = 'PRRM ' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+
+    // $dataPayloadHead = [];
+    // $dataPayloadHead["purchase_request_number"] = $NewPurchaseRequestNumber;
+    // $dataPayloadHead["user_ID"] = $user->id;
+    // $dataPayloadHead["document_date"] = date('Y-m-d H:i:s');
+    // $dataPayloadHead["status"] = 0;
+
+    // $dataPayloadSignature = [];
+    // $dataPayloadSignature["purchase_request_number"] = $NewPurchaseRequestNumber;
+    // $dataPayloadSignature["approved_user"] = $user->name;
+    // $dataPayloadSignature["approved_user"] = $user->name;
+
+
+    // dd($dataPayloadHead, $dataPayloadSignature);
+    // // $nextNumber = $lastNumber + 1;
+    // return 'PRRM ' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+  }
+
+  public function updateUom(Request $request, $id)
+  {
+    $purchaseRequestNumber = request('purchase_request_number') ? request('purchase_request_number') : "PRRM 0001";
+    $list = PurchaseRequestList::find($id);
+    $convertMassVolume = new ConvertMassVolume();
+    $calculate = $request->uom == 'kg' ? $convertMassVolume->kgToM3($list->qty) : $convertMassVolume->m3ToKg($list->qty);
+    $data = $request->all();
+    $data['uom'] = $request->uom;
+    $data['qty'] = $calculate;
+
+    if ($list->update($data)) {
+      Session()->flash("Success", "Data have been updated");
+    } else {
+      Session()->flash("Error", "Data failed to update");
     }
     return redirect()->route('purchase-request.index', $purchaseRequestNumber);
   }

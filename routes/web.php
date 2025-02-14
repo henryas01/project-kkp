@@ -93,8 +93,12 @@ route::delete('/purchase-request/list/destroy/{id}', [PurchaseRequestController:
 
 route::post('`/purchase-request/signature/{purchase_request_number}`', [PurchaseRequestController::class, 'signature'])->middleware(['auth', 'verified'])->name('purchase-request.signature');
 
+route::post('/purchase-request/create-pr', [PurchaseRequestController::class, 'createPR'])->middleware(['auth', 'verified'])->name('purchase-request.createPR');
 
 
+
+route::get('/convertion', [PurchaseRequestController::class, 'convertion'])->middleware(['auth', 'verified'])->name('purchase-request.convertion');
+route::post("/purchase-request/update-uom/{id}", [PurchaseRequestController::class, 'updateUom'])->middleware(['auth', 'verified'])->name('purchase-request.updateUom');
 
 
 Route::middleware('auth')->group(function () {
