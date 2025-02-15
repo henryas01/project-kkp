@@ -215,7 +215,7 @@
           </div>
         </div>
 
-        @if(empty($signature->acknowledge))
+        @if(($user->role == 'admin' || $user->role == 'staff' || $user->role == null && empty($signature->acknowledge)))
         <div style="cursor: pointer" class="col" data-toggle="modal" data-target="#ApproveAcknowledgeModal">
           @else
           <div class="col">

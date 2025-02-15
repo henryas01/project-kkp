@@ -100,19 +100,23 @@
 
   <!-- Nav Item - Tables -->
 
-  @if ($user->role == 'admin' || $user->role == 'atasan')
+
+
   <li class="nav-item">
     <a class="nav-link" href="/dashboard">
       <i class="fas fa-fw fa-table"></i>
       <span>Dashboard</span></a>
   </li>
-  @endif
+
+
+  @if ($user->role == 'admin' )
 
   <li class="nav-item">
     <a class="nav-link" href="/master-data">
       <i class="fas fa-fw fa-table"></i>
       <span>Master Data</span></a>
   </li>
+  @endif
 
 
 

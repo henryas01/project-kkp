@@ -15,7 +15,12 @@ class MasterController extends Controller
     {
         $user = Auth::user();
         $masterData = $masterData->paginate(5);
-        return view('master-data', compact(['user', 'masterData']));
+        if ($user->role == "admin") {
+
+            return view('master-data', compact(['user', 'masterData']));
+        } else {
+            return view('/dashboard',);
+        }
     }
 
     public function store(Request $request, MasterData $masterData)

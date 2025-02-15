@@ -39,11 +39,6 @@ class DashboardController extends Controller
     // dd($purchaseRequests->toArray());
 
     // dd($user->role);
-    if ($user->role == 'admin' || $user->role == 'atasan') {
-      return view('Dashboard', compact(['user', 'data']));
-    } else {
-
-      return redirect()->route('home');
-    }
+    return view('Dashboard', compact(['user', 'data']));
   }
 }
