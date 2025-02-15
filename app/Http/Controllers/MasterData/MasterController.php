@@ -13,10 +13,9 @@ class MasterController extends Controller
 
     public function index(User $user,  MasterData $masterData)
     {
-      $user = Auth::user();
-      $masterData = $masterData->paginate(5);
-      return view('master-data', compact(['user', 'masterData']));
-
+        $user = Auth::user();
+        $masterData = $masterData->paginate(5);
+        return view('master-data', compact(['user', 'masterData']));
     }
 
     public function store(Request $request, MasterData $masterData)
@@ -29,7 +28,7 @@ class MasterController extends Controller
         $data["berat_jenis"] = $request->berat_jenis;
 
         // dd($data);
-         if ($masterData->create($data)) {
+        if ($masterData->create($data)) {
             Session()->flash("Success", "Master Data have been created");
         } else {
             Session()->flash("Error", "Data failed to create");
@@ -37,11 +36,14 @@ class MasterController extends Controller
         return redirect()->route('master-data');
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        $masterData = MasterData::find($id);
-        // dd($masterData->toArray());
-        return view('masterData.master-data-edit', compact('masterData'));
+        if ($request->ajax()) {
+            $masterData = MasterData::find($id);
+            return view('masterData.master-data-edit', compact('masterData'));
+        } else {
+            return redirect()->route('master-data');
+        }
     }
 
     public function update(Request $request, $id)
@@ -70,7 +72,5 @@ class MasterController extends Controller
             Session()->flash("Error", "Data failed to delete");
         }
         return redirect()->route('master-data');
-
     }
-
 }

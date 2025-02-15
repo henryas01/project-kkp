@@ -10,10 +10,11 @@
       {{-- method="POST" action="{{ route('purchase-request-list.update', urldecode(request('purchase_request_number',
       'PRRM
       0001'))) }}" --}}
-      <form method="POST" action="{{ route('purchase-request-list.update', urldecode(request('purchase_request_number', 'PRRM
-      0001'))) }}">
+      <form method="POST" action="{{ route('purchase-request-list.update', $list->id ) }}">
         @csrf
         <div class="modal-body">
+
+          {{-- <input type="hidden" id="id" name="id" value="{{ $list->id }}" /> --}}
 
           <div class="form-group">
             <label for="Material" class="col-form-label">Material: </label>

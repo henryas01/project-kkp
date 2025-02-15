@@ -31,18 +31,20 @@
           </tr>
         </thead>
         <tbody>
+          @foreach ($data as $report)
           <tr>
-            <td>1</td>
-            <td>PET PLAIN 12 MIC X 1100 MM</td>
-            <td>PrintBased</td>
-            <td>Energen</td>
-            <td>15</td>
-            <td>kg</td>
-            <td> Open
-            </td>
-            <td>3-Feb-25</td>
+            <td>{{ $report->id }}</td>
+            <td>{{ $report->material }}</td>
+            <td>{{ $report->kategory }}</td>
+            <td>{{ $report->description }}</td>
+            <td>{{ $report->qty }}</td>
+            <td>{{ $report->uom }}</td>
+            <td>{{ $report->status }}</td>
+            <td>{{ $report->updated_at }}</td>
           </tr>
-          <tr>
+          @endforeach
+
+          {{-- <tr>
             <td>2</td>
             <td>CPP PLAIN 20 MIC X 1000 MM</td>
             <td>LayerBased</td>
@@ -52,19 +54,9 @@
             <td> Released
             </td>
             <td>8-Feb-25</td>
-          </tr>
+          </tr> --}}
 
-          <tr>
-            <td>3</td>
-            <td>NYLON 15 MIC X 750 MM </td>
-            <td>PrintBased</td>
-            <td>Inner coki coki </td>
-            <td>10</td>
-            <td>kg</td>
-            <td> Released
-            </td>
-            <td>9-Feb-25</td>
-          </tr>
+
 
         </tbody>
       </table>

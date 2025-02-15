@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -38,17 +37,10 @@
             <div id="content">
                 @include("layouts.components.navbar")
 
-
-
-
-
-
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
-
                     {{-- Alert --}}
                     @include("layouts.alert")
-
                     {{-- Content --}}
                     @if (!View::hasSection('content'))
                     @include("layouts.components.content-ex")
@@ -56,9 +48,7 @@
                     @yield('content')
                     @endif
                 </div>
-
                 <!-- /.container-fluid -->
-
             </div>
             <!-- End of Main Content -->
             <!-- Footer -->
@@ -66,7 +56,6 @@
             <!-- End of Footer -->
         </div>
         <!-- End of Content Wrapper -->
-
     </div>
     <!-- End of Page Wrapper -->
 
@@ -74,7 +63,6 @@
     <a class="scroll-to-top rounded" href="#page-top">
         <i class="fas fa-angle-up"></i>
     </a>
-
     <!-- Logout Modal-->
     <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
         aria-hidden="true">

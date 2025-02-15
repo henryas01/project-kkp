@@ -1,9 +1,12 @@
 @extends('layouts.layout-home')
 
+@section('search-bar')
+@include('purchase-request.components.search-bar')
+@endsection
+
 @section('content')
 <!-- Page Heading -->
 <h1 class="h3 mb-2 text-gray-800">Purchase Request</h1>
-
 
 
 
@@ -15,22 +18,38 @@
 
 
   </div>
+
+
+
   <div class="card-body">
     <div class="d-flex flex-row bd-highlight justify-content-between">
       <h4 class="h4 text-gray-800">PT. Mutiara Hexagon</h4>
       <span class="text-gray-800">{{ \Carbon\Carbon::parse($head->document_date)->format('l, j F
         Y') }}</span>
     </div>
-    <div style="width: 50%" class="d-flex flex-row bd-highlight justify-content-between">
+
+    <div class="d-flex flex-row bd-highlight justify-content-between">
+      <form method="POST" action="{{ route('purchase-request.createNewPR') }}">
+        @csrf
+        <div style="cursor: pointer; margin-top: 20px;" class="d-flex flex-column">
+
+          <button type="submit" style="border: none; background: none;" class=" m-0 font-weight-bold text-primary">
+            <i class="fas fa-plus"></i>
+            Generate a New PR
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div style="width: 55%" class="d-flex flex-row bd-highlight justify-content-between">
+
 
       <table style="margin-top: 10px;border: none;" class=" table-sm " cellspacing="0" cellpadding="0">
         <tbody>
           <tr>
             <td><b>Purchase Request No.</b></td>
             <td colspan="3">
-              <input type="text" class="form-control text-primary" name="purchase_request_no"
-                value="{{ urldecode(request('purchase_request_number', 'PRRM 0001')) }}"
-                onkeyup="if (event.keyCode == 13) { window.location.href = '/purchase-request/' + this.value; }">
+              <span class="text-primary">: {{ urldecode(request('purchase_request_number', 'PRRM 0001')) }}</span>
             </td>
           </tr>
           <tr>
@@ -49,35 +68,9 @@
           </tr>
         </tbody>
       </table>
-
-      {{-- <div style="cursor: pointer;margin-top: 25px;" class="d-flex flex-column" class="btn btn-primary"
-        onclick="window.location.href = '/purchase-request/create-new'">
-        <h6 class="m-0 font-weight-bold text-primary">
-          <i class="fas fa-plus"></i>
-          Create New PR
-        </h6>
-      </div> --}}
-
-      {{-- method="POST"
-      action="{{ route('purchase-request.store', urldecode(request('purchase_request_number', 'PRRM 0001'))) }}" --}}
-
-      {{-- method="POST" action="{{ route('purchase-request.createPR') }}" --}}
-      <form method="POST"
-        action="{{ route('purchase-request.store', urldecode(request('purchase_request_number', 'PRRM 0001'))) }}">
-        @csrf
-        <div style="cursor: pointer; margin-top: 20px;" class="d-flex flex-column">
-
-          <button type="submit" style="border: none; background: none;" class=" m-0 font-weight-bold text-primary">
-            <i class="fas fa-plus"></i>
-            Create New PR
-          </button>
-        </div>
-      </form>
-
-
-
-
     </div>
+
+
     <div class="d-flex flex-row bd-highlight justify-content-between">
       <div style="cursor: pointer" class="d-flex flex-column align-items-center justify-content-center"
         class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
@@ -186,37 +179,29 @@
     </div>
   </div>
 
-
-  {{-- @if ($user->role == 'admin' || $user->role == 'atasan') --}}
-  {{-- if $user->role admin or atasan --}}
-
   {{-- Signature --}}
   <div class="container text-center">
     <div class="row">
       <div class="col ">
         Requested by
         <div>
-          <div>
 
-            @if(empty($signature->approved_user))
-            <br><br><br><br>
-            @else
-            <img style="height: 100px; width: 100px; object-fit: contain" src="{{asset('img/approve-mark.png')}}"
-              alt="">
-            @endif
-            <hr style="border-top: 3px solid rgba(0,0,0,.1" class="sidebar-divider d-none d-md-block">
-          </div>
-
+          @if(empty($signature->approved_user))
+          <br><br><br><br>
+          @else
+          <img style="height: 100px; width: 100px; object-fit: contain" src="{{asset('img/approve-mark.png')}}" alt="">
+          @endif
+          <hr style="border-top: 3px solid rgba(0,0,0,.1" class="sidebar-divider d-none d-md-block">
         </div>
+
       </div>
-      @if ($user->role == 'admin' || $user->role == 'atasan')
+      {{-- && empty($signature->approved_manager) --}}
+      @if(($user->role == 'admin' || $user->role == 'atasan'))
       <div style="cursor: pointer" class="col" data-toggle="modal" data-target="#ApproveManagerModal">
-        @else
-        <div class="col">
+        @else <div class="col">
           @endif
           Approve by Manager
           <div>
-
             @if(empty($signature->approved_manager))
             <br><br><br><br>
             @else
@@ -224,160 +209,165 @@
               alt="">
             @endif
             <hr style="border-top: 3px solid rgba(0,0,0,.1)" class="sidebar-divider d-none d-md-block">
+
           </div>
         </div>
-        <div style="cursor: pointer" class="col" data-toggle="modal" data-target="#ApproveAcknowledgeModal">
-          Acknowledge by
-          <div>
 
-            @if(empty($signature->acknowledge))
-            <br><br><br><br>
-            @else
-            <img style="height: 100px; width: 100px; object-fit: contain" src="{{asset('img/approve-mark.png')}}"
-              alt="">
+        @if(empty($signature->approved_manager))
+        <div style="cursor: pointer" class="col" data-toggle="modal" data-target="#ApproveAcknowledgeModal">
+          @else
+          <div class="col">
             @endif
+            Acknowledge by
+            <div>
+              @if(empty($signature->acknowledge))
+              <br><br><br><br>
+              @else
+              <img style="height: 100px; width: 100px; object-fit: contain" src="{{asset('img/approve-mark.png')}}"
+                alt="">
+              @endif
+
+            </div>
             <hr style="border-top: 3px solid rgba(0,0,0,.1" class="sidebar-divider d-none d-md-block">
           </div>
+
         </div>
-      </div>
-
-      <br><br><br><br>
-    </div>
+        <br><br><br><br>
 
 
-    {{-- Modal Insert Data--}}
-    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-      aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Insert Data</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
+        {{-- Modal Insert Data--}}
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+          aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Insert Data</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <form method="POST"
+                action="{{ route('purchase-request.store', urldecode(request('purchase_request_number', 'PRRM 0001'))) }}">
+                @csrf
+                <div class="modal-body">
+
+                  <div class="form-group">
+                    <label for="Material" class="col-form-label">Material:</label>
+                    <select class="form-control" id="Material" placeholder="Input Material" name="material">
+                      <option value="">-- Select Material --</option>
+                      @foreach ($material as $item)
+                      <option value="{{ $item }}">{{ $item }}</option>
+                      @endforeach
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="description" class="col-form-label">Description:</label>
+                    <textarea class="form-control" id="description" name="description"
+                      placeholder="Input Description">{{ old('description') }}</textarea>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="qty" class="col-form-label">Qty:</label>
+                    <input type="number" class="form-control" id="qty" placeholder="Input Qty" name="qty"
+                      value="{{ old('qty') }}">
+                  </div>
+
+                  <div class="form-group">
+                    <label for="uom" class="col-form-label">UoM:</label>
+                    <select class="form-control" id="uom" placeholder="Input UoM" name="uom">
+                      <option value="">-- Select UoM --</option>
+                      <option value="meter" {{ old('uom')=='meter' ? 'selected' : '' }}>Meter</option>
+                      <option value="kg" {{ old('uom')=='kg' ? 'selected' : '' }}>Kilogram</option>
+                    </select>
+                  </div>
+
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+              </form>
+            </div>
           </div>
-          <form method="POST"
-            action="{{ route('purchase-request.store', urldecode(request('purchase_request_number', 'PRRM 0001'))) }}">
-            @csrf
-            <div class="modal-body">
+        </div>
 
-              <div class="form-group">
-                <label for="Material" class="col-form-label">Material:</label>
-                <select class="form-control" id="Material" placeholder="Input Material" name="material">
-                  <option value="">-- Select Material --</option>
-                  @foreach ($material as $item)
-                  <option value="{{ $item }}">{{ $item }}</option>
-                  @endforeach
-                </select>
-              </div>
 
-              <div class="form-group">
-                <label for="description" class="col-form-label">Description:</label>
-                <textarea class="form-control" id="description" name="description"
-                  placeholder="Input Description">{{ old('description') }}</textarea>
-              </div>
 
-              <div class="form-group">
-                <label for="qty" class="col-form-label">Qty:</label>
-                <input type="number" class="form-control" id="qty" placeholder="Input Qty" name="qty"
-                  value="{{ old('qty') }}">
-              </div>
+        {{-- Modal Approve Manager --}}
+        <div class="modal fade" id="ApproveManagerModal" tabindex="-1" role="dialog"
+          aria-labelledby="ApproveManagerModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <form method="POST"
+              action="{{route('purchase-request.signature', urldecode(request('purchase_request_number', 'PRRM 0001'))) }}">
+              @csrf
+              <input type="hidden" name="approved_manager" value="{{ Auth::user()->name }}">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="ApproveManagerModalLabel">Signature</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <div class="d-flex flex-column align-items-center justify-content-center">
+                    <i style="font-size: 70px; color:#e74a3b" class="fas fa-exclamation-circle "></i>
+                    <h3 class="h3 mb-2 text-gray-800 mt-3">Are You Sure?</h3>
+                  </div>
 
-              <div class="form-group">
-                <label for="uom" class="col-form-label">UoM:</label>
-                <select class="form-control" id="uom" placeholder="Input UoM" name="uom">
-                  <option value="">-- Select UoM --</option>
-                  <option value="meter" {{ old('uom')=='meter' ? 'selected' : '' }}>Meter</option>
-                  <option value="kg" {{ old('uom')=='kg' ? 'selected' : '' }}>Kilogram</option>
-                </select>
-              </div>
 
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-primary">Submit</button>
-            </div>
-          </form>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary">Approve</button>
+                </div>
+            </form>
+          </div>
         </div>
       </div>
-    </div>
 
-
-
-    {{-- Modal Approve Manager --}}
-    <div class="modal fade" id="ApproveManagerModal" tabindex="-1" role="dialog"
-      aria-labelledby="ApproveManagerModalLabel" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <form action="">
-          @csrf
-
+      {{-- Modal Approve Acknowledge --}}
+      <div class="modal fade" id="ApproveAcknowledgeModal" tabindex="-1" role="dialog"
+        aria-labelledby="ApproveAcknowledgeModalLebel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="ApproveManagerModalLabel">Signature</h5>
+              <h5 class="modal-title" id="ApproveAcknowledgeModalLebel">Signature</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
-            <div class="modal-body">
-              <div class="d-flex flex-column align-items-center justify-content-center">
-                <i style="font-size: 70px; color:#e74a3b" class="fas fa-exclamation-circle "></i>
-                <h3 class="h3 mb-2 text-gray-800 mt-3">Are You Sure?</h3>
+            <form method="POST"
+              action="{{route('purchase-request.signature', urldecode(request('purchase_request_number', 'PRRM 0001' ))) }}">
+              @csrf
+              <input type="hidden" name="acknowledge" value="{{ Auth::user()->name }}">
+
+              <div class="modal-body">
+                <div class="d-flex flex-column align-items-center justify-content-center">
+                  <i style="font-size: 70px; color:#e74a3b" class="fas fa-exclamation-circle "></i>
+                  <h3 class="h3 mb-2 text-gray-800 mt-3">Are You Sure?</h3>
+                </div>
+
+
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Approve</button>
               </div>
 
-
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary">Approve</button>
-            </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  {{-- Modal Approve Acknowledge --}}
-  <div class="modal fade" id="ApproveAcknowledgeModal" tabindex="-1" role="dialog"
-    aria-labelledby="ApproveAcknowledgeModalLebel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="ApproveAcknowledgeModalLebel">Signature</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
+            </form>
+          </div>
         </div>
-        {{-- urldecode(request('purchase_request_number', 'PRRM 0001')) --}}
-        <form method="POST" action="{{route('purchase-request.signature', urldecode(request('purchase_request_number', 'PRRM 0001'
-          ))) }}">
-          @csrf
-          <input type="hidden" name="acknowledge" value="{{ Auth::user()->name }}">
-
-          <div class="modal-body">
-            <div class="d-flex flex-column align-items-center justify-content-center">
-              <i style="font-size: 70px; color:#e74a3b" class="fas fa-exclamation-circle "></i>
-              <h3 class="h3 mb-2 text-gray-800 mt-3">Are You Sure?</h3>
-            </div>
-
-
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-primary">Approve</button>
-          </div>
-
-        </form>
       </div>
+
+      <div class="tampil"></div>
+
     </div>
-  </div>
+    @endsection
+    @section('scripts')
 
-  <div class="tampil"></div>
-
-</div>
-@endsection
-@section('scripts')
-
-<script type="text/javascript">
-  $('.PrEditModal').on('click', function () {
+    <script type="text/javascript">
+      $('.PrEditModal').on('click', function () {
         var url = $(this).attr('data-url');
         console.log(url);
         $.ajax({
@@ -411,7 +401,7 @@
         });
     })
 
-</script>
+    </script>
 
 
-@endsection
+    @endsection

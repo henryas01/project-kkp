@@ -12,8 +12,16 @@ use App\Models\PurchaseRequestList;
 use App\Models\PurchaseRequestSignature;
 use App\Helpers\ConvertMassVolume;
 
+
 class PurchaseRequestController extends Controller
 {
+
+  protected $purchaseRequestNumber;
+
+  public function __construct()
+  {
+    $this->purchaseRequestNumber = request('purchase_request_number') ? request('purchase_request_number') : "PRRM 0001";
+  }
 
   public function index(User $user, Request $request,  MasterData $masterData, PurchaseRequestHead $purchaseRequestHead, PurchaseRequestList $purchaseRequestList, PurchaseRequestSignature $purchaseRequestSignature)
   {
@@ -28,12 +36,13 @@ class PurchaseRequestController extends Controller
       // Valid purchase request number
     } else {
       // Possible SQL injection or invalid input, redirect
-      return redirect()->route('form-purchase', ['purchase_request_number' => 'PRRM 0001']);
+      return redirect()->route('purchase-request.index', ['purchase_request_number' => 'PRRM 0001']);
     }
 
     //  dd($purchaseRequestNumber);
 
     $head = PurchaseRequestHead::where('purchase_request_number', $purchaseRequestNumber)->first() ?? new PurchaseRequestHead;
+    $listAll = PurchaseRequestList::where('purchase_request_number')->first() ?? new PurchaseRequestList;
     $list = PurchaseRequestList::where('purchase_request_number', $purchaseRequestNumber)->paginate(5) ?? new PurchaseRequestList; // or you could be use collect()
     $signature = PurchaseRequestSignature::where('purchase_request_number', $purchaseRequestNumber)->first() ?? new PurchaseRequestSignature;
 
@@ -45,18 +54,23 @@ class PurchaseRequestController extends Controller
     // dd($head-<);
 
     // dd($user->role);
-    return view('purchase-request.index', compact(['user', 'material', 'head', 'list', 'signature']));
-    // if ($user->role == 'admin' || $user->role == 'atasan') {
-    //   return view('purchase-request.index', compact(['user', 'material', 'head', 'list', 'signature']));
-    // } else {
-    //   return redirect()->route('home');
-    // }
+    $notFound = empty($head->toArray()) && empty($listAll->toArray()) && empty($signature->toArray());
+    // dd($notFound);
+    // dd($head->toArray(), $listAll->toArray(), $signature->toArray());
+
+    if ($notFound) {
+      return redirect()->route('page-not-found.index');
+    } else {
+      return view('purchase-request.index', compact(['user', 'material', 'head', 'list', 'signature', 'notFound']));
+    }
   }
 
-  public function createPR(User $user,  PurchaseRequestHead $purchaseRequestHead, PurchaseRequestSignature $purchaseRequestSignature)
+
+  public function createNewPR(PurchaseRequestHead $purchaseRequestHead, PurchaseRequestSignature $purchaseRequestSignature)
   {
+
     $user = Auth::user();
-    $purchaseRequestHeadID = PurchaseRequestHead::latest()->first()->id;
+    $purchaseRequestHeadID = $purchaseRequestHead->latest()->first()->id;
     $nextNumber = $purchaseRequestHeadID + 1;
     $NewPurchaseRequestNumber = 'PRRM ' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
 
@@ -69,15 +83,16 @@ class PurchaseRequestController extends Controller
     $dataPayloadSignature = [];
     $dataPayloadSignature["purchase_request_number"] = $NewPurchaseRequestNumber;
     $dataPayloadSignature["approved_user"] = $user->name;
-    // $dataPayloadSignature["approved_user"] = $user->name;
 
+    // dd($dataPayloadHead, $dataPayloadSignature);
 
-    dd($dataPayloadHead, $dataPayloadSignature);
-    // if ($purchaseRequestHead->create($dataPayloadHead) && $purchaseRequestSignature->create($dataPayloadSignature)) {
-    //   Session()->flash("Success", "Data have been created");
-    // } else {
-    //   Session()->flash("Error", "Data failed to create");
-    // }
+    if ($purchaseRequestHead->create($dataPayloadHead) && $purchaseRequestSignature->create($dataPayloadSignature)) {
+      Session()->flash("Success", "Data have been created");
+      return redirect()->route('purchase-request.index', $dataPayloadHead["purchase_request_number"]);
+    } else {
+      Session()->flash("Error", "Data failed to create");
+      return redirect()->route('purchase-request.index', $this->purchaseRequestNumber);
+    }
   }
 
   // this function for insert data PR PurchaseRequest list
@@ -93,21 +108,25 @@ class PurchaseRequestController extends Controller
     $data['qty'] = $request->qty;
     $data['uom'] = $request->uom;
 
-    $purchaseRequestNumber = request('purchase_request_number') ? request('purchase_request_number') : "PRRM 0001";
 
     if ($purchaseRequestList->create($data)) {
       Session()->flash("Success", "Data have been created");
     } else {
       Session()->flash("Error", "Data failed to create");
     }
-    return redirect()->route('purchase-request.index', $purchaseRequestNumber);
+    return redirect()->route('purchase-request.index', $this->purchaseRequestNumber);
   }
 
   public function show(Request $request, $id,  PurchaseRequestList $purchaseRequestList, MasterData $masterData,)
   {
-    $list = $purchaseRequestList->findOrFail($id);
-    $material = MasterData::pluck('material');
-    return view('purchase-request.edit', compact(['list', 'material']));
+
+    if ($request->ajax()) {
+      $list = $purchaseRequestList->findOrFail($id);
+      $material = MasterData::pluck('material');
+      return view('purchase-request.edit', compact(['list', 'material']));
+    } else {
+      return redirect()->route('purchase-request.index', $this->purchaseRequestNumber);
+    }
   }
 
   public function update(Request $request, $id)
@@ -121,28 +140,28 @@ class PurchaseRequestController extends Controller
     $data['qty'] = $request->qty;
     $data['uom'] = $request->uom;
 
-    $purchaseRequestNumber = request('purchase_request_number') ? request('purchase_request_number') : "PRRM 0001";
+    // dd($id, $list->toArray(), $data);
+
     if ($list->update($data)) {
       Session()->flash("Success", "Data have been updated");
     } else {
       Session()->flash("Error", "Data failed to update");
     }
-    return redirect()->route('purchase-request.index', $purchaseRequestNumber);
+    return redirect()->route('purchase-request.index', $this->purchaseRequestNumber);
   }
 
   public function destroy($id)
   {
     $list = PurchaseRequestList::findOrFail($id);
-    $purchaseRequestNumber = request('purchase_request_number') ? request('purchase_request_number') : "PRRM 0001";
     if ($list->delete()) {
       Session()->flash("Success", "Data have been deleted");
     } else {
       Session()->flash("Error", "Data failed to delete");
     }
-    return redirect()->route('purchase-request.index', $purchaseRequestNumber);
+    return redirect()->route('purchase-request.index', $this->purchaseRequestNumber);
   }
 
-  public function signature(Request $request, $id)
+  public function signature(Request $request,  PurchaseRequestHead $purchaseRequestHead)
   {
     $purchaseRequestNumber = request('purchase_request_number') ? request('purchase_request_number') : "PRRM 0001";
     $signature = PurchaseRequestSignature::where('purchase_request_number', $purchaseRequestNumber)->first() ?? new PurchaseRequestSignature;
@@ -152,14 +171,20 @@ class PurchaseRequestController extends Controller
     $data['approved_manager'] = $request->approved_manager ?? $signature->approved_manager;
     $data['acknowledge'] = $request->acknowledge ?? $signature->acknowledge;
 
+    $signature->update($data);
+    $signatureAfterUpdate = PurchaseRequestSignature::where('purchase_request_number', $purchaseRequestNumber)->first();
 
-    // dd($data);
-    if ($signature->update($data)) {
+    $purchaseRequestHead = PurchaseRequestHead::where('purchase_request_number', $purchaseRequestNumber)->first();
+
+    $checksStatus = $signatureAfterUpdate->approved_user && $signatureAfterUpdate->approved_manager && $signatureAfterUpdate->acknowledge;
+
+    if ($purchaseRequestHead->update(['status' => $checksStatus])) {
       Session()->flash("Success", "Signature have been updated");
     } else {
+      dd($purchaseRequestHead->errors());
       Session()->flash("Error", "Signature failed to update");
     }
-    return redirect()->route('purchase-request.index', $purchaseRequestNumber);
+    return redirect()->route('purchase-request.index', $this->purchaseRequestNumber);
   }
 
 
@@ -176,36 +201,36 @@ class PurchaseRequestController extends Controller
 
     // // echo "Volume: " . $volume . " m³";
     // dd($volume);
-
-
     // $head = new PurchaseRequestHead;
     // $head->purchase_request_number = $request->input('purchase_request_number', 'PRRM 0001');
     // $head->user_id = $user->id;
-    // $user = Auth::user();
-    // $purchaseRequestHeadID = PurchaseRequestHead::latest()->first()->id;
-    // $nextNumber = $purchaseRequestHeadID + 1;
-    // $NewPurchaseRequestNumber = 'PRRM ' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
-
-    // $dataPayloadHead = [];
-    // $dataPayloadHead["purchase_request_number"] = $NewPurchaseRequestNumber;
-    // $dataPayloadHead["user_ID"] = $user->id;
-    // $dataPayloadHead["document_date"] = date('Y-m-d H:i:s');
-    // $dataPayloadHead["status"] = 0;
-
-    // $dataPayloadSignature = [];
-    // $dataPayloadSignature["purchase_request_number"] = $NewPurchaseRequestNumber;
-    // $dataPayloadSignature["approved_user"] = $user->name;
-    // $dataPayloadSignature["approved_user"] = $user->name;
-
-
-    // dd($dataPayloadHead, $dataPayloadSignature);
     // // $nextNumber = $lastNumber + 1;
     // return 'PRRM ' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+
+
+
+    $user = Auth::user();
+    $purchaseRequestHeadID = PurchaseRequestHead::latest()->first()->id;
+    $nextNumber = $purchaseRequestHeadID + 1;
+    $NewPurchaseRequestNumber = 'PRRM ' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+
+    $dataPayloadHead = [];
+    $dataPayloadHead["purchase_request_number"] = $NewPurchaseRequestNumber;
+    $dataPayloadHead["user_ID"] = $user->id;
+    $dataPayloadHead["document_date"] = date('Y-m-d H:i:s');
+    $dataPayloadHead["status"] = 0;
+
+    $dataPayloadSignature = [];
+    $dataPayloadSignature["purchase_request_number"] = $NewPurchaseRequestNumber;
+    $dataPayloadSignature["approved_user"] = $user->name;
+    $dataPayloadSignature["approved_user"] = $user->name;
+
+
+    dd($dataPayloadHead, $dataPayloadSignature);
   }
 
   public function updateUom(Request $request, $id)
   {
-    $purchaseRequestNumber = request('purchase_request_number') ? request('purchase_request_number') : "PRRM 0001";
     $list = PurchaseRequestList::find($id);
     $convertMassVolume = new ConvertMassVolume();
     $calculate = $request->uom == 'kg' ? $convertMassVolume->kgToM3($list->qty) : $convertMassVolume->m3ToKg($list->qty);
@@ -218,6 +243,6 @@ class PurchaseRequestController extends Controller
     } else {
       Session()->flash("Error", "Data failed to update");
     }
-    return redirect()->route('purchase-request.index', $purchaseRequestNumber);
+    return redirect()->route('purchase-request.index', $this->purchaseRequestNumber);
   }
 }

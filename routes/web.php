@@ -10,6 +10,8 @@ use App\Http\Controllers\Home\HomeController;
 use App\Http\Controllers\MasterData\MasterController;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\PurchaseRequest\PurchaseRequestController;
+use App\Http\Controllers\PageNotFound\PageNotFoundController;
+
 
 
 
@@ -54,9 +56,8 @@ route::get('/', function () {
 // })->middleware(['auth', 'verified'])->name('form-purchase');
 
 
-// route::get('/input-data', function () {
-//     return view('/input-data');
-// })->middleware(['auth', 'verified'])->name('input-data');
+
+route::get('/404', [PageNotFoundController::class, 'index'])->middleware(['auth', 'verified'])->name('page-not-found.index');
 
 
 
@@ -93,7 +94,7 @@ route::delete('/purchase-request/list/destroy/{id}', [PurchaseRequestController:
 
 route::post('`/purchase-request/signature/{purchase_request_number}`', [PurchaseRequestController::class, 'signature'])->middleware(['auth', 'verified'])->name('purchase-request.signature');
 
-route::post('/purchase-request/create-pr', [PurchaseRequestController::class, 'createPR'])->middleware(['auth', 'verified'])->name('purchase-request.createPR');
+route::post(`/purchase-request/create-pr/`, [PurchaseRequestController::class, 'createNewPR'])->middleware(['auth', 'verified'])->name('purchase-request.createNewPR');
 
 
 
