@@ -145,6 +145,7 @@
             {{-- convertion --}}
             <td>
 
+              @if ($user->role == 'admin' || $user->role == 'atasan' )
               <form method="post" action="{{ route('purchase-request.updateUom', $item->id) }}">
                 @csrf
                 {{-- <input type="hidden" name="material" value={{$item->material}}> --}}
@@ -153,6 +154,9 @@
                   <option value="meter" {{ $item->uom == 'meter' ? 'selected' : '' }}>Meter</option>
                 </select>
               </form>
+              @else
+              {{ $item->uom }}
+              @endif
             </td>
 
             @if ($user->role == 'admin' || $user->role == 'atasan')
