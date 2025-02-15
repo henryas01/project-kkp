@@ -144,8 +144,10 @@
             {{-- <td>{{ $item->uom }}</td> --}}
             {{-- convertion --}}
             <td>
+
               <form method="post" action="{{ route('purchase-request.updateUom', $item->id) }}">
                 @csrf
+                {{-- <input type="hidden" name="material" value={{$item->material}}> --}}
                 <select class="form-control" name="uom" onchange="this.form.submit()">
                   <option value="kg" {{ $item->uom == 'kg' ? 'selected' : '' }}>Kg</option>
                   <option value="meter" {{ $item->uom == 'meter' ? 'selected' : '' }}>Meter</option>
@@ -196,7 +198,7 @@
 
       </div>
       {{-- && empty($signature->approved_manager) --}}
-      @if(($user->role == 'admin' || $user->role == 'atasan'))
+      @if(($user->role == 'admin' || $user->role == 'atasan' && empty($signature->approved_manager)))
       <div style="cursor: pointer" class="col" data-toggle="modal" data-target="#ApproveManagerModal">
         @else <div class="col">
           @endif

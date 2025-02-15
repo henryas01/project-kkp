@@ -54,9 +54,11 @@ class PurchaseRequestController extends Controller
     // dd($head-<);
 
     // dd($user->role);
+
     $notFound = empty($head->toArray()) && empty($listAll->toArray()) && empty($signature->toArray());
     // dd($notFound);
     // dd($head->toArray(), $listAll->toArray(), $signature->toArray());
+
 
     if ($notFound) {
       return redirect()->route('page-not-found.index');
@@ -222,7 +224,7 @@ class PurchaseRequestController extends Controller
 
     $dataPayloadSignature = [];
     $dataPayloadSignature["purchase_request_number"] = $NewPurchaseRequestNumber;
-    $dataPayloadSignature["approved_user"] = $user->name;
+    $dataPayloadSignature["acknowledge"] = $user->name;
     $dataPayloadSignature["approved_user"] = $user->name;
 
 
@@ -233,16 +235,34 @@ class PurchaseRequestController extends Controller
   {
     $list = PurchaseRequestList::find($id);
     $convertMassVolume = new ConvertMassVolume();
-    $calculate = $request->uom == 'kg' ? $convertMassVolume->kgToM3($list->qty) : $convertMassVolume->m3ToKg($list->qty);
+    // $masterData = MasterData::whare("name"$id);
+
+    // dd($list->purchase_request_number);
+    $masterData = MasterData::where('material', $list->material)->first();
+    // $calculate2 = $request->uom == 'kg' ? $list->qty * 1000000 / $masterData->lebar +  $masterData->tebal + $masterData->berat_jenis : $masterData->tebal * $masterData->lebar * $masterData->berat_jenis * $list->qty / 1000000;
+    // dd($masterData->toArray(), $id, $list);
+
+    $calculate2 = $request->uom == 'meter' ? $list->qty * 1000000 / $masterData->lebar /  $masterData->tebal / $masterData->berat_jenis :
+      $list->qty / 1000000 * $masterData->lebar * $masterData->tebal * $masterData->berat_jenis;
+
+    // $calculate = $request->uom == 'kg' ? $convertMassVolume->kgToM3($list->qty) : $convertMassVolume->m3ToKg($list->qty);
     $data = $request->all();
     $data['uom'] = $request->uom;
-    $data['qty'] = $calculate;
+    $data['qty'] = $calculate2;
+
+
+
+    // dd($masterData->toArray(), $list->qty, $request->uom, $calculate2, $data);
+    // $purchaseRequestNumber = request('purchase_request_number') ? request('purchase_request_number') : "PRRM 0001";
+    $purchaseRequestNumber = $list->purchase_request_number ?? "PRRM 0001";
+
+    // dd($purchaseRequestNumber);
 
     if ($list->update($data)) {
       Session()->flash("Success", "Data have been updated");
     } else {
       Session()->flash("Error", "Data failed to update");
     }
-    return redirect()->route('purchase-request.index', $this->purchaseRequestNumber);
+    return redirect()->route('purchase-request.index', $list->purchase_request_number);
   }
 }

@@ -32,15 +32,7 @@ class DashboardController extends Controller
           ->whereRaw('A.purchase_request_number = C.purchase_request_number');
       })
       ->select('B.id', 'B.material', 'B.kategory', 'B.description', 'B.uom', 'B.qty', 'A.status', 'A.updated_at')
-      ->paginate(10); // Paginate with 10 records per page;
-
-
-    // $purchaseRequests = DB::table('purchase_request_list')
-    //   ->join('purchase_request_signature', 'purchase_request_head.purchase_request_number', '=', 'purchase_request_signature.purchase_request_number')
-    //   ->join('purchase_request_list', 'purchase_request_head.purchase_request_number', '=', 'purchase_request_list.purchase_request_number')
-    //   ->select('purchase_request_head.*', 'purchase_request_signature.*', 'purchase_request_list.*')
-    //   ->get();
-    // please i want to join with 3 model PurchaseRequestSignature PurchaseRequestHead PurchaseRequestList with purchase_request_number same
+      ->paginate(5); // Paginate with 10 records per page;
 
 
 
