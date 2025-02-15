@@ -39,8 +39,13 @@
             <td>{{ $report->description }}</td>
             <td>{{ $report->qty }}</td>
             <td>{{ $report->uom }}</td>
-            <td>{{ $report->status }}</td>
-            <td>{{ $report->updated_at }}</td>
+            <td>
+              <span class="text-{{ $report->status ? 'success' : 'primary'}}">{{ $report->status ? 'Released' : 'Open'
+                }}</span>
+            </td>
+            <td>
+
+              {{ $report->updated_at }}</td>
           </tr>
           @endforeach
 
