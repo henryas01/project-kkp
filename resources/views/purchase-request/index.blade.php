@@ -24,8 +24,7 @@
   <div class="card-body">
     <div class="d-flex flex-row bd-highlight justify-content-between">
       <h4 class="h4 text-gray-800">PT. Mutiara Hexagon</h4>
-      <span class="text-gray-800">{{ \Carbon\Carbon::parse($head->document_date)->format('l, j F
-        Y') }}</span>
+      <span class="text-gray-800">{{ \Carbon\Carbon::now()->format('l, j F Y') }}</span>
     </div>
 
     <div class="d-flex flex-row bd-highlight justify-content-between">
